@@ -16,27 +16,38 @@ class ForumPost(object):
 			try:
 				self.original_text = message[u'body'][u'#text']
 				self.message = self.clean_message(self.original_text)
+				print 'x'*100
 			except Exception, e:
 				self.original_text = ""
+				self.message = ""
 			self.author =  message[u'author'][u'login'][u'#text']
 			self.label = ''
 			self.label_fg = ''
 
 	def clean_message(self,message):
 		text = ''
-		tag = False
+		index = 0
 
-		for m in message:
-			
-			if m == '<':
-				tag = True
+		if '<' not in message:
+			return messsage
+		count = 0
 
-			elif m == '>':
-				tag = False
-				text += ' '
+		while index < len(message):
+			inicio = index
+			opening = message[inicio:].find('<')
+			if opening == -1:
+				text += message[inicio+1:-1]
+				break
+			else:
+				text += message[inicio+1:opening+inicio]
+				index+= opening
 
-			elif not tag:
-				text += m
-				
-
+			closing = message[index:].find('>')
+			if 'emoticon-' in message[opening:closing+index]:
+				#given <img class="emoticon emoticon-smileyhappy" id...>
+				#extract smileyhappy
+				emoticon = message[opening:closing+index].split('emoticon-')[1].split('"')[0]
+				text += ' #%s' % emoticon
+				text += ' '			
+			index += closing
 		return text
