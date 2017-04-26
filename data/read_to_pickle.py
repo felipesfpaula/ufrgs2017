@@ -22,8 +22,9 @@ def forum_reader(folder_path):
 			pass
 	return dataset
 
-training_dataset = forum_reader(os.path.join('..','..','clp-data','data','training'))
-testing_dataset = forum_reader(os.path.join('..','..','clp-data','data','testing'))
+PATH = 'clpsych16-data/data'
+training_dataset = forum_reader(PATH+'/training')
+testing_dataset = forum_reader(PATH+'/testing')
 
 pickle.dump(training_dataset, open('training_dataset.pickle', 'wb'))
 pickle.dump(testing_dataset, open('testing_dataset.pickle', 'wb'))
