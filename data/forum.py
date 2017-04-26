@@ -14,9 +14,29 @@ class ForumPost(object):
 			message = parsed_data[self.post_type][u'message']
 			self.board_id = message[u'board_id'][u'#text']
 			try:
-				self.text = message[u'body'][u'#text']
+				self.original_text = message[u'body'][u'#text']
+				self.message = self.clean_message(self.original_text)
 			except Exception, e:
-				self.text = ""
+				self.original_text = ""
 			self.author =  message[u'author'][u'login'][u'#text']
 			self.label = ''
 			self.label_fg = ''
+
+	def clean_message(self,message):
+		text = ''
+		tag = False
+
+		for m in message:
+			
+			if m == '<':
+				tag = True
+
+			elif m == '>':
+				tag = False
+				text += ' '
+
+			elif not tag:
+				text += m
+				
+
+		return text
