@@ -2,7 +2,7 @@ import xmltodict
 import cPickle as pickle
 import sys,os
 import re
-from forum import ForumPost
+from _forum import ForumPost
 
 
 def forum_reader(folder_path):
@@ -22,8 +22,9 @@ def forum_reader(folder_path):
 			pass
 	return dataset
 
-training_dataset = forum_reader(os.path.join('..','..','clp-data','data','training'))
-testing_dataset = forum_reader(os.path.join('..','..','clp-data','data','testing'))
 
-pickle.dump(training_dataset, open('training_dataset.pickle', 'wb'))
-pickle.dump(testing_dataset, open('testing_dataset.pickle', 'wb'))
+training_dataset = forum_reader(os.path.join('clp-data','data','training'))
+testing_dataset = forum_reader(os.path.join('clp-data','data','testing'))
+
+pickle.dump(training_dataset, open('ufrgs2017/data/training_dataset.pickle', 'wb'))
+pickle.dump(testing_dataset, open('ufrgs2017/data/testing_dataset.pickle', 'wb'))
