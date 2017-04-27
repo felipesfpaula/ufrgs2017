@@ -5,6 +5,6 @@
 to run, at the WorkingDirectory
 
 ```
- user@machine:~/WorkingDirectory$ PYTHONPATH='~/CLpsych/WorkingDirectory/' python ufrgs2017/__main__.py
+ user@machine:~/WorkingDirectory$ PYTHONPATH='~/WorkingDirectory/ufrgs2017/' python ufrgs2017/__main__.py
 ``` 
 
