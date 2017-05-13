@@ -3,15 +3,23 @@ from nltk.tokenize import word_tokenize
 import nltk
 import itertools
 import numpy as np
+from syntatic.parsing import *
+import cPickle as pickle
+
 
 ## Find unique tokens in the corpus and returns token dictionary
 def create_unigram_tokens(corpus, corpus_frequencies_filename = None):
 	freqs = Counter(list(itertools.chain.from_iterable(corpus)))
+	tokens = map(lambda x:x[0],freqs.most_common())
 	if corpus_frequencies_filename:
-		with open(corpus_frequencies_filename,'w') as freq_out:
-			for word in freqs.keys():
+		with open(corpus_frequencies_filename + '.txt','w') as freq_out:
+			for word in tokens:
 				freq_out.write((word + u' ' + str(freqs[word]) + u'\n').encode('utf-8'))
-	return dict(zip(freqs.keys(), range(0,len(freqs)) ))	
+
+	ans = dict(zip(tokens, range(0,len(tokens)) ))	
+
+	pickle.dump(ans, open(corpus_frequencies_filename + '.pickle', 'wb'))
+	return ans
 
 
 def char_ngram_tokenizer(text,n=2):
@@ -30,6 +38,22 @@ def extract_ngram_for_training(corpus_plain_text,tokenizer):
 	tokens2id = create_unigram_tokens(corpus)
 	feats = [ ngram_vectorize(text,tokens2id) for text in corpus]
 	return (np.vstack(feats), tokens2id)
+
+def extract_syntatic_feats_for_training(corpus_plain_text):
+	corpus = [ extract_productions_triples_taggedsent( (text).encode('utf8').decode('utf8') ) for text in corpus_plain_text]
+	prod2id = create_unigram_tokens([ prod for item in corpus for prod in item['prods']], 'prod_dictionary' )
+	triples = []
+	for item in corpus:
+		for trip in item['triples']:
+			for subtrip in trip:
+				for subsubtrip in trip:
+					for i in subsubtrip:
+						# triples.append([i[0][0]+i[0][1]+i[1]+ i[2][0]+i[2][1] ])
+						triples.append([ str((i[0][1], i[1], i[2][1])) ])
+
+	trip2id = create_unigram_tokens(triples, 'trip_dictionary' )
+
+
 
 def extract_bigram_for_training(corpus_plain_text):
 	return extract_ngram_for_training(corpus_plain_text,nltk.bigrams)
