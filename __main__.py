@@ -27,7 +27,7 @@ white = 0
 for txt in corpus_reader():
 	cps.append(txt)
 
-p_cps = parse_corpus_for_training(cps[676:680])
+p_cps = parse_corpus_for_training(cps[0:5])
 pickle.dump(p_cps, open('parsed_corpus.pickle', 'wb'))
 
 f1,f2 = extract_syntatic_feats_for_training(p_cps)
@@ -39,9 +39,10 @@ f1,f2 = extract_syntatic_feats_for_training(p_cps)
 # classifier = RandomForestClassifier()
 # scores = cross_val_score(classifier, np.hstack((unigrams_matrix,bigrams_matrix,char_trigrams_matrix)), targets, cv=10)
 # print scores
-
-
+print f1.shape
+print f2.shape
+print np.hstack((f1,f2))
 classifier = RandomForestClassifier()
-scores = cross_val_score(classifier, np.hstack((f1,f2)), targets, cv=10)
+scores = cross_val_score(classifier, np.hstack((f1,f2)), targets[0:5], cv=2)
 print scores
 

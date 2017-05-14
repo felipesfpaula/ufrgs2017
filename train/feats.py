@@ -11,14 +11,16 @@ import cPickle as pickle
 def create_unigram_tokens(corpus, corpus_frequencies_filename = None):
 	freqs = Counter(list(itertools.chain.from_iterable(corpus)))
 	tokens = map(lambda x:x[0],freqs.most_common())
+
+	ans = dict(zip(tokens, range(0,len(tokens)) ))	
+
 	if corpus_frequencies_filename:
 		with open(corpus_frequencies_filename + '.txt','w') as freq_out:
 			for word in tokens:
 				freq_out.write((word + u' ' + str(freqs[word]) + u'\n').encode('utf-8'))
 
-	ans = dict(zip(tokens, range(0,len(tokens)) ))	
+		pickle.dump(ans, open(corpus_frequencies_filename + '.pickle', 'wb'))
 
-	pickle.dump(ans, open(corpus_frequencies_filename + '.pickle', 'wb'))
 	return ans
 
 
@@ -43,23 +45,6 @@ def extract_ngram_for_training(corpus_plain_text,tokenizer):
 def parse_corpus_for_training(corpus_plain_text):
 	corpus = [ extract_productions_triples_taggedsent( (text).encode('utf8').decode('utf8') ) for text in corpus_plain_text]
 
-	triples = []
-	for item in corpus:
-		for trip in item['triples']:
-			for subtrip in trip:
-				for subsubtrip in trip:
-					for i in subsubtrip:
-						# triples.append([i[0][0]+i[0][1]+i[1]+ i[2][0]+i[2][1] ])
-						triples.append([ str((i[0][1], i[1], i[2][1])) ])
-
-	prods = [ prod for item in corpus for prod in item['prods']]
-
-	return (triples,prods)
-
-def extract_syntatic_feats_for_training(parsed_corpus):
-	triples,prods = parsed_corpus
-	#corpus = [ extract_productions_triples_taggedsent( (text).encode('utf8').decode('utf8') ) for text in corpus_plain_text]
-	prod2id = create_unigram_tokens(prods, 'prod_dictionary' )
 	# triples = []
 	# for item in corpus:
 	# 	for trip in item['triples']:
@@ -69,15 +54,20 @@ def extract_syntatic_feats_for_training(parsed_corpus):
 	# 					# triples.append([i[0][0]+i[0][1]+i[1]+ i[2][0]+i[2][1] ])
 	# 					triples.append([ str((i[0][1], i[1], i[2][1])) ])
 
-	trip2id = create_unigram_tokens(triples, 'trip_dictionary' )
-	feats1 = [ ngram_vectorize(teh_prods,prod2id) for teh_prods in prods ]
-	feats2 = [ ngram_vectorize(trips,trip2id) for trips in triples]
-	return(feats1,feats2)
+	prods = [ item['prods'] for item in corpus ]
+	triples = [ item['triples'] for item in corpus ]
 
+	return (triples,prods)
 
+def extract_syntatic_feats_for_training(parsed_corpus):
+	triples,prods = parsed_corpus
+	#corpus = [ extract_productions_triples_taggedsent( (text).encode('utf8').decode('utf8') ) for text in corpus_plain_text]
+	prod2id = create_unigram_tokens(corpus=[prod for prod in prods])
 
-
-
+	trip2id = create_unigram_tokens(corpus=[trip for trip in triples])
+	feats1 = [ngram_vectorize(prod,prod2id) for prod in prods]
+	feats2 = [ngram_vectorize(trip,trip2id) for trip in triples]
+	return(np.vstack(feats1),np.vstack(feats2))
 
 def extract_bigram_for_training(corpus_plain_text):
 	return extract_ngram_for_training(corpus_plain_text,nltk.bigrams)

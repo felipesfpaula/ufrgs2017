@@ -90,7 +90,13 @@ def extract_productions_triples_taggedsent(text_block):
 	tagged_sentences = [sent for sent in tagged_sentences if sent != []]
 	prods = [parse.productions() for sent in tagged_sentences for parse in stanford_parser.tagged_parse(sent)]
 	prods = [[str(prod) for prod in prodset if prod.is_nonlexical() ] for prodset in prods ]
+
+	prods = [subprod for prod in prods for subprod in prod]
 	triples = [ [tree.triples() for tree in t] for t in stanford_dep_parser.tagged_parse_sents(tagged_sentences)]
 	triples = [ [triple for triple in tripleset] for tripleset in triples ]
+
+	triples = [subtriple for trip in triples for subtriple in trip]
+	triples = [subtriple for trip in triples for subtriple in trip]
+	triples = [ str((i[0][1], i[1], i[2][1])) for i in triples ]
 
 	return {'triples':triples,'prods':prods,'taggedsent':tagged_sentences}
