@@ -12,6 +12,8 @@ from data.forum import *
 training_dataset = pickle.load(open('ufrgs2017/data/training_dataset.pickle','rb'))
 targets = [ (value.label).encode('utf8').decode('utf8') for key, value in training_dataset.iteritems()]
 
+
+
 def corpus_reader():
 	for key, value in training_dataset.iteritems():
 		# print  (value.original_text).encode('utf8').decode('utf8')
@@ -23,21 +25,12 @@ count = 0
 cps = []
 white = 0
 for txt in corpus_reader():
-	if re.sub('\s+','',txt) == '':
-		continue
 	cps.append(txt)
 
-extract_syntatic_feats_for_training(cps)
+p_cps = parse_corpus_for_training(cps[676:680])
+pickle.dump(p_cps, open('parsed_corpus.pickle', 'wb'))
 
-
-# count = 0
-# for txt in corpus_reader():
-# 	print "original:"
-# 	print txt[1].encode('utf8')
-# 	print 'parsed:'
-# 	print txt[0].encode('utf8')
-# 	print " "
-# extract_syntatic_feats_for_training(cps)
+f1,f2 = extract_syntatic_feats_for_training(p_cps)
 
 # unigrams_matrix, token2id = extract_unigram_for_training(corpus_reader())
 # bigrams_matrix, token2id = extract_bigram_for_training(corpus_reader())
@@ -46,3 +39,9 @@ extract_syntatic_feats_for_training(cps)
 # classifier = RandomForestClassifier()
 # scores = cross_val_score(classifier, np.hstack((unigrams_matrix,bigrams_matrix,char_trigrams_matrix)), targets, cv=10)
 # print scores
+
+
+classifier = RandomForestClassifier()
+scores = cross_val_score(classifier, np.hstack((f1,f2)), targets, cv=10)
+print scores
+

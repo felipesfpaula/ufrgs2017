@@ -39,9 +39,10 @@ def extract_ngram_for_training(corpus_plain_text,tokenizer):
 	feats = [ ngram_vectorize(text,tokens2id) for text in corpus]
 	return (np.vstack(feats), tokens2id)
 
-def extract_syntatic_feats_for_training(corpus_plain_text):
+
+def parse_corpus_for_training(corpus_plain_text):
 	corpus = [ extract_productions_triples_taggedsent( (text).encode('utf8').decode('utf8') ) for text in corpus_plain_text]
-	prod2id = create_unigram_tokens([ prod for item in corpus for prod in item['prods']], 'prod_dictionary' )
+
 	triples = []
 	for item in corpus:
 		for trip in item['triples']:
@@ -51,7 +52,30 @@ def extract_syntatic_feats_for_training(corpus_plain_text):
 						# triples.append([i[0][0]+i[0][1]+i[1]+ i[2][0]+i[2][1] ])
 						triples.append([ str((i[0][1], i[1], i[2][1])) ])
 
+	prods = [ prod for item in corpus for prod in item['prods']]
+
+	return (triples,prods)
+
+def extract_syntatic_feats_for_training(parsed_corpus):
+	triples,prods = parsed_corpus
+	#corpus = [ extract_productions_triples_taggedsent( (text).encode('utf8').decode('utf8') ) for text in corpus_plain_text]
+	prod2id = create_unigram_tokens(prods, 'prod_dictionary' )
+	# triples = []
+	# for item in corpus:
+	# 	for trip in item['triples']:
+	# 		for subtrip in trip:
+	# 			for subsubtrip in trip:
+	# 				for i in subsubtrip:
+	# 					# triples.append([i[0][0]+i[0][1]+i[1]+ i[2][0]+i[2][1] ])
+	# 					triples.append([ str((i[0][1], i[1], i[2][1])) ])
+
 	trip2id = create_unigram_tokens(triples, 'trip_dictionary' )
+	feats1 = [ ngram_vectorize(teh_prods,prod2id) for teh_prods in prods ]
+	feats2 = [ ngram_vectorize(trips,trip2id) for trips in triples]
+	return(feats1,feats2)
+
+
+
 
 
 
