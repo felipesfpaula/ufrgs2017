@@ -32,7 +32,8 @@ def char_ngram_tokenizer(text,n=2):
 def ngram_vectorize(tokenized_text,tok2id):
 	feat_vec = np.zeros(shape=(len(tok2id),1))
 	for word in tokenized_text:
-		feat_vec[tok2id[word]] += 1 
+		if word in tok2id.keys():
+			feat_vec[tok2id[word]] += 1 
 	return feat_vec.T
 
 def extract_ngram_for_training(corpus_plain_text,tokenizer):
@@ -44,15 +45,6 @@ def extract_ngram_for_training(corpus_plain_text,tokenizer):
 
 def parse_corpus_for_training(corpus_plain_text):
 	corpus = [ extract_productions_triples_taggedsent( (text).encode('utf8').decode('utf8') ) for text in corpus_plain_text]
-
-	# triples = []
-	# for item in corpus:
-	# 	for trip in item['triples']:
-	# 		for subtrip in trip:
-	# 			for subsubtrip in trip:
-	# 				for i in subsubtrip:
-	# 					# triples.append([i[0][0]+i[0][1]+i[1]+ i[2][0]+i[2][1] ])
-	# 					triples.append([ str((i[0][1], i[1], i[2][1])) ])
 
 	prods = [ item['prods'] for item in corpus ]
 	triples = [ item['triples'] for item in corpus ]
@@ -82,8 +74,19 @@ def extract_char_trigram_for_training(corpus_plain_text):
 	return extract_ngram_for_training(corpus_plain_text,lambda x: char_ngram_tokenizer(x,n=3))
 
 ## Used at run time to classify text
-def extract_unigram(str,unigramDict):
-	pass
+def extract_unigram(corpus_plain_text,unigramDict):
+	corpus = [ word_tokenize( (text).encode('utf8').decode('utf8') ) for text in corpus_plain_text]
+	feats = [ ngram_vectorize(text,unigramDict) for text in corpus]
+	return np.vstack(feats)	
 
-def extract_bigram(str,bigramDict):
-	pass
+def extract_bigram(corpus_plain_text,bigramDict):
+	corpus = [ nltk.bigrams( (text).encode('utf8').decode('utf8') ) for text in corpus_plain_text]
+	feats = [ ngram_vectorize(text,bigramDict) for text in corpus]
+	return np.vstack(feats)
+
+def extract_char_trigram(corpus_plain_text,chartrigramDict):
+	tokenizer = lambda x: char_ngram_tokenizer(x,n=3)
+	corpus = [ tokenizer( (text).encode('utf8').decode('utf8') ) for text in corpus_plain_text]
+	feats = [ ngram_vectorize(text,chartrigramDict) for text in corpus]
+	return np.vstack(feats)
+
