@@ -16,7 +16,6 @@ class ForumPost(object):
 			try:
 				self.original_text = message[u'body'][u'#text']
 				self.message = self.clean_message(self.original_text)
-				print 'x'*100
 			except Exception, e:
 				self.original_text = ""
 				self.message = ""
@@ -39,7 +38,10 @@ class ForumPost(object):
 				text += message[inicio+1:-1]
 				break
 			else:
-				text += message[inicio+1:opening+inicio]
+				if inicio == 0:
+					text += message[inicio:opening+inicio]
+				else:
+					text += message[inicio+1:opening+inicio]
 				index+= opening
 
 			closing = message[index:].find('>')
@@ -50,4 +52,12 @@ class ForumPost(object):
 				text += ' #%s' % emoticon
 				text += ' '			
 			index += closing
+		text = text.replace("&nbsp;", " ")
+		text = text.replace("&lt;", "")
+		text = text.replace("&gt;", "")
+		text = text.replace("(", "")
+		text = text.replace(")", "")
+		text = text.replace("_", "")
+		text = text.replace(".", " . ")
+
 		return text

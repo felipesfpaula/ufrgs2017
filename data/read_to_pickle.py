@@ -2,7 +2,7 @@ import xmltodict
 import cPickle as pickle
 import sys,os
 import re
-from _forum import ForumPost
+from forum import ForumPost
 
 
 def forum_reader(folder_path):

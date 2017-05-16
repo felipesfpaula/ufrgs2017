@@ -1,7 +1,9 @@
+import html
+
 class MessageParser:
 
 	def __init__(self,message):
-		self.message = message
+		self.message = html.unescape(message)
 		self.message_text = self.clean_message() 
 
 	def extract_emoticons(self):
