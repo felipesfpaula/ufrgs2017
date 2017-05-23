@@ -6,8 +6,9 @@ import re
 
 class ForumPost(object):
 	
-	def __init__(self,xml_file_name):
+	def __init__(self,xml_file_name,post_number=None):
 		with open(xml_file_name,'r') as data:
+			self.post_number = post_number
 			parsed_data = xmltodict.parse(data.read())
 			self.post_type = parsed_data.keys()[0]
 			self.message_type = parsed_data[self.post_type][u'message'][u'@type']
